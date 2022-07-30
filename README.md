@@ -1,6 +1,6 @@
 # Ray Casting: SFML + C++
 
-![123](https://user-images.githubusercontent.com/82779713/181789054-02b370e2-dfbd-463d-80f5-3b1726207bee.png)
+![123](https://user-images.githubusercontent.com/82779713/181919048-dcec408c-4137-4d5f-8b98-609ecb77c95a.png)
 
 ## Requirements
 1. GCC MinGW (SEH) 64-bit: Minimum version - 7.3.0

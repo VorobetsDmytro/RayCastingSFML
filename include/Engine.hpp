@@ -12,11 +12,13 @@ public:
 	Engine(int width, int height, std::string title, sf::Uint32 style)
 		: _window(std::make_shared<sf::RenderWindow>(sf::VideoMode(width, height), title, style)), 
 		  _wndWidth(_window->getSize().x), _wndHeight(_window->getSize().y){}
+	virtual void start();
 protected:
-	virtual void start(){}
 	virtual void update(){}
 	virtual void buildMap(){}
 	virtual void drawEnvironments();
+	sf::Color farEffect(const sf::Color& color, float distance, int brightness);
+	sf::Color brightColor(const sf::Color& color, int brightness);
 	sf::Event _event;
 	std::vector<Wall> _walls;
 	const std::shared_ptr<sf::RenderWindow> _window;

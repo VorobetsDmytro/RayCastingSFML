@@ -1,14 +1,5 @@
 #include "Raycast.hpp"
 
-void Raycast::start(){
-	buildMap();
-	while (_window->isOpen()){
-		_window->clear();
-		update();
-		_window->display();
-	}
-}
-
 void Raycast::update() {
 	while (_window->pollEvent(_event)) {
 		if (_event.type == sf::Event::Closed)
@@ -32,16 +23,13 @@ void Raycast::drawWalls(){
 	}
 }
 
-void Raycast::drawWall3d(const Vector2& start, const Vector2& end, int wallPosX, float angle) {
+void Raycast::drawWall3d(const Vector2& rayStartPos, const Vector2& rayHitPos, int wallPosX, const sf::Color& wallColor, float angle) {
 	const int width = _wndWidth / 2;
-	float length = Vector2::length(start, end);
+	float distance = Vector2::length(rayStartPos, rayHitPos);
 	float wallWidth = width / (_fov * _density);
-	float wallHeight = _wndHeight * 50.f / (length * cos(Vector2::degToRad(angle)));
-	int alpha = (255 / length) * 160;
-	alpha = alpha > 255 ? 255
-		  : alpha < 0 ? 0
-		  : alpha;
-	_wall3D->setFillColor(sf::Color(alpha, 0, 0, 255));
+	float wallHeight = _wndHeight * 50.f / (distance * cos(Vector2::degToRad(angle)));
+	sf::Color corWallColor = farEffect(wallColor, distance, 160);
+	_wall3D->setFillColor(sf::Color(corWallColor.r, corWallColor.g, corWallColor.b, corWallColor.a));
 	_wall3D->setSize({wallWidth, wallHeight});
 	float x = (wallPosX  * wallWidth) + width;
 	float y = (_wndHeight - wallHeight) / 2;
@@ -61,20 +49,24 @@ void Raycast::drawRays(){
 		float rayEndX = rayCoord.x + mouseX;
 		float rayEndY = rayCoord.y + mouseY;
 		bool hit = false;
+		int wallDarkness = 0;
 		for(auto wall : _walls){
 			Vector2 inetsectCoord = Vector2::intersection({mouseX, mouseY}, {rayEndX, rayEndY}, {wall.x1, wall.y1}, {wall.x2, wall.y2});
 			if(inetsectCoord.x != FLT_MAX && inetsectCoord.y != FLT_MAX){
 				rayEndX = inetsectCoord.x;
 				rayEndY = inetsectCoord.y;
 				hit = true;
+				wallDarkness = wall.x1 == wall.x2 ? -40 : 0;
 			}
 		}
 		_ray->setPosition(
 			sf::Vector2f(mouseX, mouseY),
 			sf::Vector2f(rayEndX, rayEndY)
 		);
-		if(hit)
-			drawWall3d({mouseX + 600.f, mouseY}, {rayEndX + 600.f, rayEndY}, wallPosX, angle);
+		if(hit){
+			sf::Color wall3DColor = brightColor(*_wall3DColor.get(), wallDarkness);
+			drawWall3d({mouseX + 600.f, mouseY}, {rayEndX + 600.f, rayEndY}, wallPosX, wall3DColor, angle);
+		}
 		if(mouseX <= _wndWidth / 2 + 1.f && rayEndX <= _wndWidth / 2 + 1.f)
 			_window->draw(_ray->getSource());
 		++wallPosX;
@@ -116,6 +108,16 @@ void Raycast::setOption(RaycastSettings option, float value){
 			break;
 		case RaycastSettings::FPS_LIMIT:
 			_window->setFramerateLimit(value < 0.f ? 0 : (int)value);
+			break;
+		default:
+			break;
+	}
+}
+
+void Raycast::setOption(RaycastSettings option, sf::Color value) {
+	switch (option) {
+		case RaycastSettings::WALL3D_COLOR:
+			_wall3DColor = std::make_unique<sf::Color>(value);
 			break;
 		default:
 			break;
