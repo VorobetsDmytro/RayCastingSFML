@@ -5,7 +5,7 @@
 #include <memory>
 #include <iostream>
 #include "Mouse.hpp"
-#include "Wall.hpp"
+#include "Line.hpp"
 
 class Engine {
 public:
@@ -20,7 +20,7 @@ protected:
 	sf::Color farEffect(const sf::Color& color, float distance, int brightness);
 	sf::Color brightColor(const sf::Color& color, int brightness);
 	sf::Event _event;
-	std::vector<Wall> _walls;
+	std::vector<Line*> _walls;
 	const std::shared_ptr<sf::RenderWindow> _window;
 	const std::shared_ptr<Mouse> _mouse = std::make_shared<Mouse>(_window.get());
 	const int _wndWidth;

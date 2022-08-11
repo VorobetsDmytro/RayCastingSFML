@@ -27,7 +27,6 @@ public:
 private:
 	void update() override;
 	void buildMap() override;
-	void buildRectangle(const Vector2& pos, const Vector2& size);
 	void drawWalls();
 	void drawRays();
 	void drawWall3d(const Vector2& rayStartPos, const Vector2& rayHitPos, int wallPosX, const sf::Color& wallColor, float angle);

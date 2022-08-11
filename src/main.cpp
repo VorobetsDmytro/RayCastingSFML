@@ -1,6 +1,5 @@
-#include <SFML/Graphics.hpp>
-#include <memory>
 #include "Raycast.hpp"
+#include <memory>
 
 int main() {
 	std::unique_ptr<Raycast> game = std::make_unique<Raycast>(1280, 720);

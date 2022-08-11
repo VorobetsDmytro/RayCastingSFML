@@ -1,4 +1,5 @@
 #include "Raycast.hpp"
+#include "Rectangle.hpp"
 
 void Raycast::update() {
 	while (_window->pollEvent(_event)) {
@@ -10,34 +11,32 @@ void Raycast::update() {
 	drawEnvironments();
 	drawWalls();
 	drawRays();
+
+	//The rotated rectangle
+	_walls[1]->rotate(.5f);
 }
 
-void Raycast::drawWalls(){
+void Raycast::drawWalls() {
 	_ray->setColor(sf::Color::Green);
-	for(auto wall : _walls){
-		_ray->setPosition(
-			sf::Vector2f(wall.x1, wall.y1),
-			sf::Vector2f(wall.x2, wall.y2)
-		);
-		_window->draw(_ray->getSource());
-	}
+	for(auto wall : _walls)
+		wall->draw(*_window.get());
 }
 
 void Raycast::drawWall3d(const Vector2& rayStartPos, const Vector2& rayHitPos, int wallPosX, const sf::Color& wallColor, float angle) {
-	const int width = _wndWidth / 2;
+	const int halfWidth = _wndWidth / 2;
 	float distance = Vector2::length(rayStartPos, rayHitPos);
-	float wallWidth = width / (_fov * _density);
+	float wallWidth = halfWidth / (_fov * _density);
 	float wallHeight = _wndHeight * 50.f / (distance * cos(Vector2::degToRad(angle)));
 	sf::Color corWallColor = farEffect(wallColor, distance, 160);
 	_wall3D->setFillColor(sf::Color(corWallColor.r, corWallColor.g, corWallColor.b, corWallColor.a));
 	_wall3D->setSize({wallWidth, wallHeight});
-	float x = (wallPosX  * wallWidth) + width;
+	float x = (wallPosX  * wallWidth) + halfWidth;
 	float y = (_wndHeight - wallHeight) / 2;
 	_wall3D->setPosition({x, y});
 	_window->draw(*_wall3D.get());
 }
 
-void Raycast::drawRays(){
+void Raycast::drawRays() {
 	_ray->setColor(sf::Color::White);
 	const int FOV = _fov / 2;
 	Mouse* mouse = _mouse.get();
@@ -45,53 +44,45 @@ void Raycast::drawRays(){
 	float mouseY = mouse->getPosition().y;
 	int wallPosX = 0;
 	for (float angle = FOV; angle >= -FOV; angle -= 1.f / _density) {
-		Vector2 rayCoord = Vector2::rotate(angle + _direction, _castDistance);
-		float rayEndX = rayCoord.x + mouseX;
-		float rayEndY = rayCoord.y + mouseY;
+		Vector2 rayEndPos = Vector2::rotate({mouseX, mouseY}, angle + _direction, _castDistance);
 		bool hit = false;
-		int wallDarkness = 0;
+		int vertWallDarkness = 0;
 		for(auto wall : _walls){
-			Vector2 inetsectCoord = Vector2::intersection({mouseX, mouseY}, {rayEndX, rayEndY}, {wall.x1, wall.y1}, {wall.x2, wall.y2});
-			if(inetsectCoord.x != FLT_MAX && inetsectCoord.y != FLT_MAX){
-				rayEndX = inetsectCoord.x;
-				rayEndY = inetsectCoord.y;
+			Vector2 intersectCoord = wall->intersection({mouseX, mouseY}, {rayEndPos.x, rayEndPos.y}, vertWallDarkness);
+			if(intersectCoord.x != FLT_MAX && intersectCoord.y != FLT_MAX){
+				rayEndPos.x = intersectCoord.x;
+				rayEndPos.y = intersectCoord.y;
 				hit = true;
-				wallDarkness = wall.x1 == wall.x2 ? -40 : 0;
 			}
 		}
 		_ray->setPosition(
 			sf::Vector2f(mouseX, mouseY),
-			sf::Vector2f(rayEndX, rayEndY)
+			sf::Vector2f(rayEndPos.x, rayEndPos.y)
 		);
 		if(hit){
-			sf::Color wall3DColor = brightColor(*_wall3DColor.get(), wallDarkness);
-			drawWall3d({mouseX + 600.f, mouseY}, {rayEndX + 600.f, rayEndY}, wallPosX, wall3DColor, angle);
+			sf::Color wall3DColor = brightColor(*_wall3DColor.get(), vertWallDarkness);
+			drawWall3d({mouseX, mouseY}, {rayEndPos.x, rayEndPos.y}, wallPosX, wall3DColor, angle);
 		}
-		if(mouseX <= _wndWidth / 2 + 1.f && rayEndX <= _wndWidth / 2 + 1.f)
+		const int halfWidth = _wndWidth / 2;
+		if(mouseX <= halfWidth + 1.f && rayEndPos.x <= halfWidth + 1.f)
 			_window->draw(_ray->getSource());
 		++wallPosX;
 	}
 }
 
-void Raycast::buildRectangle(const Vector2& pos, const Vector2& size) {
-	_walls.push_back(Wall(pos.x, pos.y, size.x + pos.x, pos.y));
-	_walls.push_back(Wall(size.x + pos.x, pos.y, size.x + pos.x, size.y + pos.y));
-	_walls.push_back(Wall(size.x + pos.x, size.y + pos.y, pos.x, size.y + pos.y));
-	_walls.push_back(Wall(pos.x, size.y + pos.y, pos.x, pos.y));
+void Raycast::buildMap() {
+	const int halfWidth = _wndWidth / 2;
+	const int halfHeight = _wndHeight / 2;
+	_walls.push_back(new Rectangle({0.f, 0.f}, {(float)halfWidth, (float)_wndHeight}, sf::Color::Green));
+	_walls.push_back(new Rectangle({(float)halfWidth / 2, (float)halfHeight}, {100.f, 100.f}, sf::Color::Green));
+	_walls.push_back(new Rectangle({(float)halfWidth / 3, (float)halfHeight / 2}, {50.f, 50.f}, sf::Color::Green));
+	_walls.push_back(new Rectangle({(float)halfWidth / 4, (float)halfHeight / 1.1f}, {75.f, 30.f}, sf::Color::Green));
+	_walls.push_back(new Rectangle({(float)halfWidth / 1.3f, (float)halfHeight / 4}, {35.f, 125.f}, sf::Color::Green));
+	_walls.push_back(new Rectangle({(float)halfWidth / 4, (float)halfHeight * 1.5f}, {125.f, 35.f}, sf::Color::Green));
+	_walls.push_back(new Line({100, 100}, {180, 100}, sf::Color::Green));
 }
 
-void Raycast::buildMap(){
-	const int width = _wndWidth / 2;
-	const int height = _wndHeight / 2;
-	buildRectangle({0.f, 0.f}, {(float)width, (float)_wndHeight});
-	buildRectangle({(float)width / 2, (float)height}, {100.f, 100.f});
-	buildRectangle({(float)width / 3, (float)height / 2}, {50.f, 50.f});
-	buildRectangle({(float)width / 4, (float)height / 1.1f}, {75.f, 30.f});
-	buildRectangle({(float)width / 1.3f, (float)height / 4}, {35.f, 125.f});
-	buildRectangle({(float)width / 4, (float)height * 1.5f}, {125.f, 35.f});
-}
-
-void Raycast::setOption(RaycastSettings option, float value){
+void Raycast::setOption(RaycastSettings option, float value) {
 	switch (option) {
 		case RaycastSettings::FOV:
 			_fov = value <= 0.f ? 1.f
