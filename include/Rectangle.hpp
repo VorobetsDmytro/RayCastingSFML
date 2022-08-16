@@ -12,7 +12,7 @@ public:
     [[nodiscard]] std::vector<Vector2> getSourcePosition() override;
     void rotate(float angle) override;
     void draw(sf::RenderWindow& window) override;
-    Vector2 intersection(const Vector2& start, const Vector2& end, int& vertWallDarkness) override;
+    [[nodiscard]] Vector2 intersection(const Vector2& start, const Vector2& end, int& vertWallDarkness) override;
 private:
     sf::VertexArray _line = sf::VertexArray(sf::LinesStrip, 2);
 };

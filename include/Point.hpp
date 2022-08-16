@@ -10,6 +10,7 @@ public:
     Point(const Vector2& pos = {0.f, 0.f}, const sf::Color& color = sf::Color::White);
     Point(const Vector2& pos, const sf::Color& color, const Vector2& center);
     void setPosition(const Vector2& pos);
+    [[nodiscard]] sf::Color getColor();
     [[nodiscard]] Vector2 getAxisX();
     [[nodiscard]] Vector2 getAxisY();
     [[nodiscard]] virtual std::vector<Vector2> getPosition();

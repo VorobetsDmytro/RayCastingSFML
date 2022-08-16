@@ -10,20 +10,21 @@ Point::Point(const Vector2& pos, const sf::Color& color, const Vector2& center)
     _point.setFillColor(color);
 }
 
-std::vector<Vector2> Point::getPosition(){
-	return {Vector2::position(pos, axisX, axisY, center)};
-}
-
-std::vector<Vector2> Point::getSourcePosition(){
-	return {pos};
-}
-
 void Point::setPosition(const Vector2& pos){
     this->pos = pos;
 }
 
 Vector2 Point::getAxisX() { return axisX; }
+
 Vector2 Point::getAxisY() { return axisY; }
+
+std::vector<Vector2> Point::getSourcePosition() { return {pos}; }
+
+sf::Color Point::getColor() { return color; }
+
+std::vector<Vector2> Point::getPosition(){
+	return { Vector2::position(pos, axisX, axisY, center) };
+}
 
 void Point::rotate(float angle) {
     axisX = Vector2::rotate(axisX, angle);

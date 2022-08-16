@@ -19,8 +19,6 @@ public:
 	static float length(const Vector2& vec);
 	static float length(const Vector2& start, const Vector2& end);
 	static float degToRad(float deg);
-	static const Vector2 axisX;
-	static const Vector2 axisY;
 	float x;
 	float y;
 };

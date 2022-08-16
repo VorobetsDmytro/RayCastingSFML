@@ -7,7 +7,6 @@ int main() {
 	game->setOption(RaycastSettings::CAST_DISTANCE, 2000.f);
 	game->setOption(RaycastSettings::DENSITY, 10.f);
 	game->setOption(RaycastSettings::FPS_LIMIT, 120.f);
-	game->setOption(RaycastSettings::WALL3D_COLOR, {217, 153, 59});
 	game->start();
     return 0;
 }

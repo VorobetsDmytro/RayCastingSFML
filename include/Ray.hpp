@@ -5,7 +5,7 @@
 
 class Ray{
 public:
-	Ray(): _ray(sf::VertexArray(sf::LinesStrip, 2)){}
+	Ray(const sf::Color& color = sf::Color::White);
 	void setColor(const sf::Color& color);
 	void setPosition(const sf::Vector2f& start, const sf::Vector2f& end);
 	[[nodiscard]] sf::VertexArray& getSource() { return _ray; }

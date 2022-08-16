@@ -1,27 +1,45 @@
 #include "Engine.hpp"
 
 void Engine::start(){
+	preTime = clock.getElapsedTime();
 	buildMap();
-	while (_window->isOpen()){
-		_window->clear();
+	while (window->isOpen()){
+		window->clear();
 		update();
-		_window->display();
+		window->display();
+		calculateFPS();
+	}
+}
+
+void Engine::calculateFPS() {
+	curTime = clock.getElapsedTime();
+	deltaTime = curTime.asSeconds() - preTime.asSeconds();
+	fps = 1.0f / deltaTime;
+	preTime = curTime;
+}
+
+void Engine::showFPS() {
+	static sf::Clock showTimer;
+	int curTimeSeconds = static_cast<int>(showTimer.getElapsedTime().asSeconds());
+	if(curTimeSeconds >= 1){
+		std::cout << "FPS = " << fps << std::endl;
+		showTimer.restart();
 	}
 }
 
 void Engine::drawEnvironments() {
     sf::RectangleShape rectangle;
     rectangle.setFillColor(sf::Color(52, 222, 235, 255));
-	rectangle.setSize({_wndWidth / 2.f, (float)_wndHeight});
-	rectangle.setPosition({_wndWidth / 2.f, 0.f});
-	_window->draw(rectangle);
+	rectangle.setSize({wndWidth / 2.f, (float)wndHeight});
+	rectangle.setPosition({wndWidth / 2.f, 0.f});
+	window->draw(rectangle);
 	sf::Vertex rectangleGradient[] = {
-    	sf::Vertex({_wndWidth / 2.f,  _wndHeight / 2.f}, sf::Color(43, 43, 43, 255)),
-    	sf::Vertex({(float)_wndWidth, _wndHeight / 2.f}, sf::Color(43, 43, 43, 255)),
-		sf::Vertex({(float)_wndWidth, (float)_wndHeight}, sf::Color(143, 143, 143, 255)),
-    	sf::Vertex({_wndWidth / 2.f, (float)_wndHeight}, sf::Color(143, 143, 143, 255)),
+    	sf::Vertex({wndWidth / 2.f,  wndHeight / 2.f}, sf::Color(43, 43, 43, 255)),
+    	sf::Vertex({(float)wndWidth, wndHeight / 2.f}, sf::Color(43, 43, 43, 255)),
+		sf::Vertex({(float)wndWidth, (float)wndHeight}, sf::Color(143, 143, 143, 255)),
+    	sf::Vertex({wndWidth / 2.f, (float)wndHeight}, sf::Color(143, 143, 143, 255)),
 	};
-	_window->draw(rectangleGradient, 4, sf::PrimitiveType::Quads);
+	window->draw(rectangleGradient, 4, sf::PrimitiveType::Quads);
 }
 
 sf::Color Engine::farEffect(const sf::Color& color, float distance, int brightness){

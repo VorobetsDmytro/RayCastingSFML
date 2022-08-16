@@ -1,8 +1,5 @@
 #include "Vector2.hpp"
 
-const Vector2 Vector2::axisX = {1.f, 0.f};
-const Vector2 Vector2::axisY = {0.f, 1.f};
-
 Vector2 Vector2::intersection(const Vector2& A, const Vector2& B, const Vector2& C, const Vector2& D){
     float x1 = A.x, x2 = B.x, x3 = C.x, x4 = D.x;
     float y1 = A.y, y2 = B.y, y3 = C.y, y4 = D.y;
