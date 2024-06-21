@@ -38,4 +38,4 @@ To rotate the rays:
     - Scroll your mouse wheel down
 
 ## Author
-[Dmytro Vorobets](https://github.com/Parasik72)
+[Dmytro Vorobets](https://github.com/VorobetsDmytro)
